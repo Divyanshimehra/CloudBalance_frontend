@@ -76,7 +76,7 @@ export default function Users() {
                             <TableCell className="border border-gray-300 px-4 py-2">{user.firstName}</TableCell>
                             <TableCell className="border border-gray-300 px-4 py-2">{user.lastName}</TableCell>
                             <TableCell className="border border-gray-300 px-4 py-2">{user.email}</TableCell>
-                            <TableCell className="border border-gray-300 px-4 py-2">{user.roles}</TableCell>
+                            <TableCell className="border border-gray-300 px-4 py-2"><div className="inline-block border border-blue-900 bg-blue-100 py-1 px-2 rounded">{user.roles}</div></TableCell>
                             <TableCell className="border border-gray-300 px-4 py-2">{user.lastLogin}</TableCell>
 
                             <TableCell className="border border-gray-300 px-4 py-2">

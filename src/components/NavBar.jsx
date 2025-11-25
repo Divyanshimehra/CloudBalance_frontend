@@ -18,7 +18,7 @@ export default function NavBar({ toggleSidebar }) {
     }
 
     return (
-        <div className="flex items-center justify-between h-20 px-6 bg-white shadow">
+        <div className="flex items-center justify-between h-20 min-h-20 px-6 bg-white shadow">
 
             <div className="flex items-center gap-4">
                 <img src={ckLogo} className='w-50'/>
