@@ -14,6 +14,7 @@ export default function NavBar({ toggleSidebar }) {
 
     const handleLogout = () => {
         localStorage.removeItem("role");
+        localStorage.removeItem("username");
         return navigate("/");
     }
 

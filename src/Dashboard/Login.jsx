@@ -1,23 +1,28 @@
+import { useContext } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { AppContext } from "../Context/AppContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const {updateUserName} = useContext(AppContext);
 
   const isLoggedIn = localStorage.getItem("role");
   if (isLoggedIn) {
-    return <Navigate to="/dashboard/" replace />;
+    return <Navigate to="/dashboard/users" replace />;
   }
 
   const handleSubmit = (e) => {
     e.preventDefault(); //prevents page refresh
+    const username = e.target.email.value.split("@")[0];
+    updateUserName(username);
+
 
     // mock login for now
     localStorage.setItem("role", "admin");
     // localStorage.setItem("role", "readonly");
     // localStorage.setItem("role", "customer");
 
-
-    navigate("/dashboard/");
+    navigate(`/dashboard/users`); 
   };
 
   return (
