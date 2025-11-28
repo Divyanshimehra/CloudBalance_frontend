@@ -1,5 +1,5 @@
 import React from 'react'
-import { routesByRole } from '../Routes/roles';
+import { routesByRole } from '../Routes/routesByRole';
 import { Navigate, Routes, Route } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 
