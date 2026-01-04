@@ -1,16 +1,26 @@
-import Users from "../pages/Users";
+import AWS from "../pages/AWS/AWS";
+import CostExplorer from "../pages/CostExplorer/CostExplorer";
+import AddUsers from "../pages/UserManagement/AddUsers";
+import Users from "../pages/UserManagement/Users";
+import Onboarding from "../pages/UserOnboarding/Onboarding";
 
 export const routesByRole = {
-  admin: [
+  Admin: [
     { path: "users", element: <Users /> },
-    // { path: "modules", element: <Modules /> },
-    // { path: "dashboardControl", element: <DashboardControl />}
-
+    { path: "users/add", element: <AddUsers /> },
+    { path: "users/edit/:id", element: <AddUsers /> },
+    { path: "onboarding", element: <Onboarding/>},
+    { path: "cost-explorer", element: <CostExplorer/>},
+    { path: "AWS-service", element: <AWS/>},
   ],
-  readonly: [
+  Readonly: [
     // { path: "", element: <ReadOnly /> },
+     {path: "users", element: <Users /> },
+     { path: "onboarding", element: <Onboarding/>},
+     { path: "cost-explorer", element: <CostExplorer/>},
+     { path: "AWS-service", element: <AWS/>},
   ],
-  customer: [
+  Customer: [
     // { path: "", element: <Customer /> },
   ]
 };

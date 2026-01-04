@@ -10,7 +10,7 @@ export default function OverallRoutes(){
     return(
         <Routes>
             {/* public route */}
-            <Route path ="/" element={<Login />} />
+            <Route path ="/login" element={<Login />} />
 
             {/* protected dashboard */}
             <Route element={<ProtectedRoutes />}>

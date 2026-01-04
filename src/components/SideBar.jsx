@@ -1,23 +1,25 @@
 //displaying different items in Sidebar based on Role
 
 import { NavLink } from "react-router-dom";
-import {ManageAccounts, DashboardCustomize, DisplaySettings } from "@mui/icons-material";
+import {ManageAccounts, DashboardCustomize, DisplaySettings, Laptop, AttachMoney, CloudQueue } from "@mui/icons-material";
 
 export default function SideBar({isSideBarOpen}) {
     
     const role = localStorage.getItem("role");
     const menuByRole = {
-        admin: [
-            {label:"Users", path:"/dashboard/users", icon:<ManageAccounts/>}, 
-            {label:"Module Control Grid", path:"/dashboard/module-control-grid", icon:<DisplaySettings/>}, 
-            {label:"Dashboard Control Grid", path:"/dashboard/dashboard-control-grid", icon:<DashboardCustomize/>}
+        Admin: [
+            {label:"User Management", path:"/dashboard/users", icon:<ManageAccounts/>}, 
+            {label:"User Onboarding", path:"/dashboard/onboarding", icon:<Laptop/>}, 
+            {label:"Cost Explorer", path:"/dashboard/cost-explorer", icon:<AttachMoney/>},
+            {label:"AWS Service", path:"/dashboard/AWS-service", icon:<CloudQueue/>}, 
+
         ],
-        readonly: [
+        Readonly: [
             {label:"Read Only Dashboard", path:"readonly-dashboard"}, 
             {label:"Users", path: "readonly-users"}, 
             {label:"Module Overview", path: "readonly-modules"}
         ],
-        customer: [
+        Customer: [
             {label:"Customer Dashboard", path:"customer-dashboard"}, 
             {label:"View Reports", path:"view-reports"}, 
             {label:"Analytics", path:"analytics"}

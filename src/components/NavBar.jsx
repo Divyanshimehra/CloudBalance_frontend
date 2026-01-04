@@ -13,9 +13,11 @@ export default function NavBar({ toggleSidebar }) {
     const navigate = useNavigate();
 
     const handleLogout = () => {
+        localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("username");
-        return navigate("/");
+        localStorage.removeItem("email");
+        return navigate("/login");
     }
 
     return (

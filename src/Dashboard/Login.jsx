@@ -6,23 +6,55 @@ export default function Login() {
   const navigate = useNavigate();
   const {updateUserName} = useContext(AppContext);
 
-  const isLoggedIn = localStorage.getItem("role");
-  if (isLoggedIn) {
+  // const isLoggedIn = localStorage.getItem("role");
+  // if (isLoggedIn) {
+  //   return <Navigate to="/dashboard/users" replace />;
+  // }
+
+  const token = localStorage.getItem("token");
+  if (token) {
     return <Navigate to="/dashboard/users" replace />;
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); //prevents page refresh
+
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
     const username = e.target.email.value.split("@")[0];
     updateUserName(username);
 
+    try{
+      const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
+      if (!response.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await response.json();
+      
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("token", data.jwtToken);
+      localStorage.setItem("email", data.email);
+
+      navigate(`/dashboard/users`); //if role: Admin
+
+    }
+    catch (error) {
+      alert("Login failed: " + error.message);
+    }
     // mock login for now
-    localStorage.setItem("role", "admin");
+    // localStorage.setItem("role", "admin");
     // localStorage.setItem("role", "readonly");
     // localStorage.setItem("role", "customer");
 
-    navigate(`/dashboard/users`); 
   };
 
   return (

@@ -5,10 +5,11 @@ import Layout from '../Layout/Layout';
 
 export default function MainDashboard() {
   const role = localStorage.getItem("role");
+  
 
-  if (!role || !routesByRole[role]) {
-    return <Navigate to="/" replace />;
-  }
+  // if (!role || !routesByRole[role]) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   const allowedRoutes = routesByRole[role];
   return (
