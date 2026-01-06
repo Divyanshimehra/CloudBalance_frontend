@@ -5,7 +5,7 @@ import Users from "../pages/UserManagement/Users";
 import Onboarding from "../pages/UserOnboarding/Onboarding";
 
 export const routesByRole = {
-  Admin: [
+  ADMIN: [
     { path: "users", element: <Users /> },
     { path: "users/add", element: <AddUsers /> },
     { path: "users/edit/:id", element: <AddUsers /> },
@@ -13,14 +13,14 @@ export const routesByRole = {
     { path: "cost-explorer", element: <CostExplorer/>},
     { path: "AWS-service", element: <AWS/>},
   ],
-  Readonly: [
+  READONLY: [
     // { path: "", element: <ReadOnly /> },
      {path: "users", element: <Users /> },
      { path: "onboarding", element: <Onboarding/>},
      { path: "cost-explorer", element: <CostExplorer/>},
      { path: "AWS-service", element: <AWS/>},
   ],
-  Customer: [
+  CUSTOMER: [
     // { path: "", element: <Customer /> },
   ]
 };

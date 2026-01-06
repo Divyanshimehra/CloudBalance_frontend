@@ -35,7 +35,6 @@ export default function Users() {
 
   useEffect(() => {
     apiFetch("/dashboard/users")
-    // fetch("http://localhost:8080/dashboard/users")
           .then((response) => response.json())
             .then((data) => {
                 const formattedUsers = data.map(u => ({
@@ -66,7 +65,6 @@ export default function Users() {
     if (!selectedUser) return;
 
     apiFetch(`/dashboard/users/${selectedUser.id}`, {
-    // fetch(`http://localhost:8080/dashboard/users/${selectedUser.id}`, {
       method: "DELETE",
     })
       .then(() => {

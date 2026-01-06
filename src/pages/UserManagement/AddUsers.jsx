@@ -8,7 +8,7 @@ export default function AddUser() {
   const { id } = useParams();
   const isEditMode = Boolean(id);
 
-  const availableRoles = ["Admin", "Readonly", "Customer"];
+  const availableRoles = ["ADMIN", "READONLY", "CUSTOMER"];
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -28,7 +28,6 @@ export default function AddUser() {
   useEffect(() =>{
     if (!isEditMode) return;
     apiFetch(`/dashboard/users/${id}`)
-    // fetch(`http://localhost:8080/dashboard/users/${id}`)
     .then((res) => res.json())
     .then((data) => {
       setFormData({
@@ -43,20 +42,18 @@ export default function AddUser() {
 
   // Fetch all accounts
   useEffect(() => {
-    if (formData.role !== "Customer") return;
+    if (formData.role !== "CUSTOMER") return;
 
     apiFetch(`/accounts`)
-    // fetch(`http://localhost:8080/accounts`)
       .then(res => res.json())
       .then(data => setAllAccounts(data));
   }, [formData.role]);
 
   // fetch assigned accounts in edit mode
   useEffect(() => {
-    if (!isEditMode || formData.role !== "Customer") return;
+    if (!isEditMode || formData.role !== "CUSTOMER") return;
 
     apiFetch(`/dashboard/users/${id}/accounts`)
-    // fetch(`http://localhost:8080/dashboard/users/${id}/accounts`)
       .then(res => res.json())
       .then(data => setAssignedAccounts(data));
   }, [id, isEditMode, formData.role]);
@@ -214,7 +211,7 @@ export default function AddUser() {
         </div>
 
         {/* ACCOUNT MAPPING (CUSTOMER ONLY) */}
-        {formData.role === "Customer" && (
+        {formData.role === "CUSTOMER" && (
           <Box className="border rounded p-4 mb-6">
             <h3 className="font-semibold mb-3">Manage Account IDs</h3>
 

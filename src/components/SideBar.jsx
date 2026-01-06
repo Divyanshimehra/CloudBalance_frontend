@@ -7,19 +7,19 @@ export default function SideBar({isSideBarOpen}) {
     
     const role = localStorage.getItem("role");
     const menuByRole = {
-        Admin: [
+        ADMIN: [
             {label:"User Management", path:"/dashboard/users", icon:<ManageAccounts/>}, 
             {label:"User Onboarding", path:"/dashboard/onboarding", icon:<Laptop/>}, 
             {label:"Cost Explorer", path:"/dashboard/cost-explorer", icon:<AttachMoney/>},
             {label:"AWS Service", path:"/dashboard/AWS-service", icon:<CloudQueue/>}, 
 
         ],
-        Readonly: [
+        READONLY: [
             {label:"Read Only Dashboard", path:"readonly-dashboard"}, 
             {label:"Users", path: "readonly-users"}, 
             {label:"Module Overview", path: "readonly-modules"}
         ],
-        Customer: [
+        CUSTOMER: [
             {label:"Customer Dashboard", path:"customer-dashboard"}, 
             {label:"View Reports", path:"view-reports"}, 
             {label:"Analytics", path:"analytics"}

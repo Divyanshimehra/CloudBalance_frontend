@@ -1,15 +1,11 @@
 import { useContext } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
+import { apiFetch } from "../api/apiClient";
 
 export default function Login() {
   const navigate = useNavigate();
   const {updateUserName} = useContext(AppContext);
-
-  // const isLoggedIn = localStorage.getItem("role");
-  // if (isLoggedIn) {
-  //   return <Navigate to="/dashboard/users" replace />;
-  // }
 
   const token = localStorage.getItem("token");
   if (token) {
@@ -26,7 +22,7 @@ export default function Login() {
     updateUserName(username);
 
     try{
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await apiFetch(`/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,10 +46,6 @@ export default function Login() {
     catch (error) {
       alert("Login failed: " + error.message);
     }
-    // mock login for now
-    // localStorage.setItem("role", "admin");
-    // localStorage.setItem("role", "readonly");
-    // localStorage.setItem("role", "customer");
 
   };
 
