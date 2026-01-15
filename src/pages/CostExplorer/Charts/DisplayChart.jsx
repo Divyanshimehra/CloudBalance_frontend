@@ -14,7 +14,7 @@ export function displayChart({columns, rows, groupKey}) {
   const dataset = rows.map(row => ({
     seriesname: row[groupKey],
     data: monthColumns.map(month => ({
-      value: Number(row[month].replace("$", ""))
+      value: row[month] ?? 0
     }))
   }));
 

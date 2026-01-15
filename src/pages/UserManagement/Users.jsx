@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import ReusableTable from "../../components/ReusableTable";
 import { apiFetch } from "../../api/apiClient";
+import { UserContext } from "../../Context/UserContext";
 
 export default function Users() {
 
@@ -55,6 +56,10 @@ export default function Users() {
       });
   }, []);
 
+  const {user} = useContext(UserContext);
+  const role = user ? user.role : null;
+  const isAdmin = role === "ADMIN";
+
   // Edit User Handler
   const handleEditClick = (user) => {
   navigate(`/dashboard/users/edit/${user.id}`);
@@ -87,9 +92,14 @@ export default function Users() {
       <h1 className="font-bold text-2xl m-5">Users</h1>
       <div className="bg-white m-5 p-5">
             <div className="flex gap-4 mb-4">
-                <Button sx={{ backgroundColor: "#022db9ff", color: "white",}}  onClick={() => navigate("/dashboard/users/add")}>
+                {
+                <Button 
+                    sx={{ backgroundColor: isAdmin ? "#022db9ff" : "#a8a8a8ff", 
+                      color: "white",
+                    cursor: isAdmin ? "pointer" : "not-allowed"}}  
+                    onClick={isAdmin ? () => navigate("/dashboard/users/add") : null}>
                     + Add New User
-                </Button>
+                </Button>}
             </div>
 
         {/* Users Table */}
@@ -99,15 +109,15 @@ export default function Users() {
             renderActions={(user) => (
                 <>
                     <EditIcon 
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleEditClick(user)}
+                        style={{ cursor: isAdmin ? "pointer" : "not-allowed" }}
+                        onClick={isAdmin ? () => handleEditClick(user) : null}
                     />
                     <DeleteIcon 
-                        style={{ cursor: "pointer" }} 
-                        onClick={() => {
+                        style={{ cursor: isAdmin ? "pointer" : "not-allowed" }} 
+                        onClick={isAdmin ? () => {
                             setSelectedUser(user);
                             setOpenDeleteDialog(true);
-                        }}
+                        }: null}
                     />
                 </>
             )}

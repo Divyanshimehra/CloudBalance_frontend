@@ -8,6 +8,7 @@ Charts(FusionCharts);
 export default function FusionChart({ chartType, categories, dataset }) {
   const dataSource = {
     chart: {
+      type: 'column2d',
       theme: "fusion",
       showValues: "0",
       xAxisName: "Month",

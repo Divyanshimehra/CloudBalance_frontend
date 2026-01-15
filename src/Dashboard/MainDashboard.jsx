@@ -1,17 +1,21 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { routesByRole } from '../Routes/routesByRole';
 import { Navigate, Routes, Route } from 'react-router-dom';
 import Layout from '../Layout/Layout';
+import App from '../App';
+import { UserContext } from '../Context/UserContext';
 
 export default function MainDashboard() {
-  const role = localStorage.getItem("role");
-  
 
-  // if (!role || !routesByRole[role]) {
-  //   return <Navigate to="/login" replace />;
-  // }
+  const {user} = useContext(UserContext);
+  const role = user ? user.role : null;
+
+  if (!role || !routesByRole[role]) {
+    return <Navigate to="/login" replace />;
+  }
 
   const allowedRoutes = routesByRole[role];
+
   return (
   <Routes>
 
@@ -24,7 +28,10 @@ export default function MainDashboard() {
           element={route.element}
         />
       ))}
-      <Route index element={<h1>Welcome to Dashboard</h1>} />
+      <Route index element={<Navigate to ={
+        role === "CUSTOMER" ? "cost-explorer" : "users"
+      } replace />
+      } />
     </Route>
   </Routes>
   )

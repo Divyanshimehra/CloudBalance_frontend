@@ -17,6 +17,7 @@
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
+    "dayjs": "^1.11.19",
     "fetch": "^1.1.0",
     "fusioncharts": "^4.2.0",
     "react": "^19.2.0",

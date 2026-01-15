@@ -1,18 +1,15 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { UserContext } from '../Context/UserContext';
 
 export default function ProtectedRoutes() {
+  const {user, loading} = useContext(UserContext);
+  
+    if(loading){
+        return null;
+    }
 
-    // const role = localStorage.getItem("role")
-    // const validRoles = ["admin", "readonly", "customer"];
-    
-    const token = localStorage.getItem("token");
-
-    // if(!role || !validRoles.includes(role)){
-    //     return <Navigate to ="/login" replace />
-    // }
-
-    if(!token){
+    if(!user){
         return <Navigate to ="/login" replace />
     }
 

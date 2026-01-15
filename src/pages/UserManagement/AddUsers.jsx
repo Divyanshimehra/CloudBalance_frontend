@@ -265,7 +265,7 @@ export default function AddUser() {
                         )
                       }
                     />
-                    <span>{acc.name} ({acc.accountId})</span>
+                    <span>{acc.accountName} ({acc.accountId})</span>
                   </div>
                 ))}
               </Box>

@@ -1,63 +1,119 @@
-import { useState } from "react";
-import ReusableTable from "../../components/ReusableTable";
+import { useContext, useEffect, useState } from "react";
 import { BarChart, ShowChart, StackedBarChart, Tune } from "@mui/icons-material";
-import { displayChart } from "../../components/DisplayChart";
-import FusionChart from "../../components/FusionChart";
+import { DEFAULT_CHART_TYPE, DEFAULT_DATE_RANGE, GROUP_BY, MORE_GROUP_BY } from "./constants";
+import CostDashboard from "./components/CostDashboard";
+import CostFilter from "./components/CostFilter";
+import { apiFetch } from "../../api/apiClient";
+import { UserContext } from "../../Context/UserContext";
 
-const groups = ["Service", "Instance Type", "Account ID", "Usage Type", "Platform", "Region", "Usage Type Group", "Tags", "More"];
 
 export default function CostExplorer() {
 
-    const [chartType, setChartType] = useState("msline");
-    const [startDate, setStartDate] = useState("2025-07-01");
-    const [endDate, setEndDate] = useState("2026-03-31");
+    const [chartType, setChartType] = useState(DEFAULT_CHART_TYPE);
+    const [dateRange, setDateRange] = useState(DEFAULT_DATE_RANGE);
 
-    const [selectedGroup, setSelectedGroup] = useState("Service");
+    const {activeAccount, user} = useContext(UserContext);
+
+    const [filters, setFilters] = useState({});
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+    const [filterOptions, setFilterOptions] = useState([]);
+
+    const visibleFilters = user?.role === "CUSTOMER"
+    ? filterOptions.filter(f => f.filterKey !== "ACCOUNT_ID")
+    : filterOptions;
+
+    const [groupBy, setGroupBy] = useState(GROUP_BY[0].value);
+    const [isMoreGroupOpen, setIsMoreGroupOpen] = useState(false);
+
+    const ALL_GROUP_BY = [...GROUP_BY, ...MORE_GROUP_BY];
+
+    const [costData, setCostData] = useState([]);
+
+    const activeGroup = ALL_GROUP_BY.find(g => g.value === groupBy);
+
+    //data helpers
+    function monthToStartDate(month) {
+      return `${month}-01`;
+    }
     
-    const serviceColumns = [
-        { field: 'service', headerName: 'Service', },
-        { field: 'july25', headerName: 'July 2025', },
-        { field: 'aug25', headerName: 'August 2025', },
-        { field: 'sept25', headerName: 'September 2025', },
-        { field: 'oct25', headerName: 'October 2025', },
-        { field: 'nov25', headerName: 'November 2025', },
-        { field: 'dec25', headerName: 'December 2025', },
-        { field: 'total', headerName: 'Total', }
-    ];
+    function monthToEndDate(month) {
+      const d = new Date(month + "-01");
+      d.setMonth(d.getMonth() + 1);
+      d.setDate(0); // last day of selected month
+      return d.toISOString().slice(0, 10);
+    }
 
-    const serviceRows = [
-       { service: 'Amazon EC2', july25: '$1200', aug25: '$1300', sept25: '$1250', oct25: '$1400', nov25: '$1350', dec25: '$1500', total: '$8000' },
-       { service: 'Amazon S3', july25: '$800', aug25: '$850', sept25: '$900', oct25: '$950', nov25: '$1000', dec25: '$1100', total: '$5600' },
-       { service: 'Amazon RDS', july25: '$600', aug25: '$650', sept25: '$700', oct25: '$750', nov25: '$800', dec25: '$850', total: '$4350' },
-       { service: 'AWS Lambda', july25: '$300', aug25: '$350', sept25: '$400', oct25: '$450', nov25: '$500', dec25: '$550', total: '$2550' },
-       { service: 'Amazon CloudFront', july25: '$200', aug25: '$250', sept25: '$300', oct25: '$350', nov25: '$400', dec25: '$450', total: '$1950' },
-    ];
+    // Fetch cost data 
+    useEffect(() => {
+      async function loadData() {
 
-    const tableConfig = {
-        Service: { columns: serviceColumns, rows: serviceRows },
-        // InstanceType: { columns: instanceTypeColumns, rows: instanceTypeRows },
-        // AccountID: { columns: accountIDColumns, rows: accountIDRows },
-        // UsageType: { columns: usageTypeColumns, rows: usageTypeRows },
-        // Platform: { columns: platformColumns, rows: platformRows },
-        // Region: { columns: regionColumns, rows: regionRows },
-        // UsageTypeGroup: { columns: usageTypeGroupColumns, rows: usageTypeGroupRows },
-        // Tags: { columns: tagsColumns, rows: tagsRows },
-        // More: { columns: moreColumns, rows: moreRows },
-        
-    };
+        try{      
+          const res = await apiFetch("/dashboard/cost-explorer", {
+            method: "POST",
+            body: JSON.stringify({
+              startDate: monthToStartDate(dateRange.start),
+              endDate: monthToEndDate(dateRange.end),
+              groupBy,
+              filters:{
+                ...filters,
+                ...(user?.role === "CUSTOMER" 
+                  ? {
+                    ACCOUNT_ID: activeAccount
+                    ? [String(activeAccount.accountId)]
+                    : []
+                  }
+                  : {}),
+                
+              }
+            }),
+          });
+          
+          if (!res.ok) {
+            throw new Error("Failed to fetch cost-explorer data");
+          }
+          const response = await res.json();  
+          
+          const activeGroup = ALL_GROUP_BY.find(g => g.value === groupBy);
+          const groupKey = activeGroup.dataKey;
 
-    const { columns, rows } = tableConfig[selectedGroup];
-    const groupKeyMap = {
-    Service: "service"
-    };
+          const mappedRows = response.rows.map(row => ({
+            [groupKey]: typeof row.groupKey === "object"
+              ? row.groupKey[groupBy]
+              : row.groupKey,
+            monthlyCost: row.monthlyCost,
+          }));
 
-    const chartData = displayChart({
-    columns,
-    rows,
-    groupKey: groupKeyMap[selectedGroup]
-    });
+          setCostData(mappedRows);
+        } catch (err) {
+          console.error(err);
+        } 
+      }
 
-    console.log(chartData);
+      loadData();
+    }, [groupBy, dateRange, filters, activeAccount]);
+
+
+    // Fetch filters
+    useEffect(() => {
+      async function loadFilters(){
+        try{
+          const res = await apiFetch("/dashboard/cost-explorer/filters");
+          
+          if (!res.ok) {
+            throw new Error("Failed to fetch filters");
+          }
+
+          const data = await res.json();
+          setFilterOptions(data);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      loadFilters();
+    }, []);
+
 
 
     return (
@@ -73,15 +129,18 @@ export default function CostExplorer() {
             Group By:
           </span>
 
-          {groups.map((group) => {
-            const isActive = selectedGroup === group;
+          {GROUP_BY.map((group) => {
+            const isActive = groupBy === group.value;
 
             return (
               <button
-                key={group}
-                onClick={() => setSelectedGroup(group)}
+                key={group.value}
+                onClick={() => {
+                  setGroupBy(group.value); 
+                  setIsMoreGroupOpen(false);
+                }}
                 className={`
-                  px-4 py-1.5 rounded-md text-base font-medium transition
+                  px-4 py-1.5 rounded-md text-base font-medium
                   ${
                     isActive
                       ? "bg-blue-800 text-white shadow"
@@ -89,13 +148,40 @@ export default function CostExplorer() {
                   }
                 `}
               >
-                {group}
+                {group.label}
               </button>
             );
           })}
+          <div className="relative">
+            <button
+            onClick={() => setIsMoreGroupOpen(prev => !prev)}
+            className="px-4 py-1.5 rounded-md bg-gray-100 text-gray-700"
+            > More ▾
+            </button>
+            {isMoreGroupOpen && (
+              <div className="absolute z-50 mt-2 w-56 bg-white border rounded shadow">
+                {MORE_GROUP_BY.map(opt => (
+                  <div
+                  key={opt.value}
+                  onClick={() => {
+                    setGroupBy(opt.value);
+                    setIsMoreGroupOpen(false);
+                  }}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                >
+                  {opt.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <button 
-        className=" p-2 bg-blue-800 text-white rounded" ><Tune/></button>
+        <button
+        // onClick={() => setIsFilterOpen(true)}
+        onClick={() => setIsFilterOpen((prev) => !prev)}
+        className="p-2 bg-blue-800 text-white rounded hover:bg-blue-700">
+          <Tune />
+        </button>
         </div>
       </div>
       <div className="flex items-center justify-between bg-white ml-5 pl-5 mr-5">
@@ -104,16 +190,16 @@ export default function CostExplorer() {
         {/* date to be added here */}
         <div className="flex items-center gap-2 p-4">
                 <input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)} 
+                type="month" 
+                value={dateRange.start} 
+                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value}))} 
                 className="border border-gray-300 rounded p-2"
                 />
                 <span className="font-medium text-gray-700">-</span>
                 <input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)} 
+                type="month" 
+                value={dateRange.end} 
+                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value}))} 
                 className="border border-gray-300 rounded p-2"
                 />
         </div>
@@ -156,19 +242,36 @@ export default function CostExplorer() {
         </div>
       </div>
       </div>
-      <div className="bg-white m-5 p-5">
-            <FusionChart
-            chartType={chartType}
-            categories={chartData.categories}
-            dataset={chartData.dataset}
-            />
-        </div>
-      <div className="bg-white m-5 p-5">
-        <ReusableTable 
-            columns={tableConfig[selectedGroup].columns} 
-            rows={tableConfig[selectedGroup].rows} 
+      <div className="flex m-5 bg-white border rounded overflow-hidden "
+       style={{ maxWidth: isFilterOpen ? "100%" : "99%" }}>
+        {/* LEFT: chart + table */}
+        <CostDashboard
+          chartType={chartType}
+          groupKey={activeGroup.dataKey}
+          dateRange={dateRange}
+          data={costData}
         />
+
+        {/* RIGHT: filter panel */}
+        <div 
+        className={`bg-gray-100 transition-all duration-300 ease-in-out`}
+        style={{ width: isFilterOpen ? "15%" : "0" }}>
+          {isFilterOpen && (
+            <CostFilter
+             filters={visibleFilters}
+             value={filters}
+             onApply={(selectedFilters) => {
+                setFilters(selectedFilters);
+                setIsFilterOpen(false);
+              }}
+              onReset={() => setFilters({})}
+            />
+          )}
+        </div>
       </div>
+
     </>
   );
 }
+
+
